@@ -1,0 +1,18 @@
+POST http://vse-ins-test.local:80/orders
+Accept: application/json
+Cache-Control: no-cache
+Content-Type: application/json
+
+{"productIds":[1,2,3]}
+
+###
+
+POST http://vse-ins-test.local:80/orders/pay
+Accept: application/json
+Cache-Control: no-cache
+Content-Type: application/json
+
+{"orderId":1,"orderSum":54}
+
+###
+

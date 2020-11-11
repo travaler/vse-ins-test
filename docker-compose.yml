@@ -1,0 +1,70 @@
+version: "3"
+
+services:
+  app:
+    build: docker/php
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+    networks:
+      - internal
+    environment:
+      XDEBUG_CONFIG: "remote_host=192.168.200.1 remote_enable=1"
+      PHP_IDE_CONFIG: "serverName=vse-ins-test.local"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./:/app
+      - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/vhost.conf
+    command: [nginx-debug, '-g', 'daemon off;']
+    depends_on:
+      - app
+    networks:
+      - internal
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    env_file: .env
+    environment:
+      MYSQL_DATABASE: "$DB_DATABASE"
+      MYSQL_ROOT_PASSWORD: "$DB_PASSWORD"
+    networks:
+      - internal
+
+  frontend-nginx:
+    image: nginx:alpine
+    ports:
+      - 81:80
+    volumes:
+      - ./frontend:/app/frontend
+      - ./docker/frontend-nginx/vhost.conf:/etc/nginx/conf.d/vhost.conf
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+    depends_on:
+      - app
+    networks:
+      - internal
+
+  frontend-nodejs:
+    image: node:15.1.0-buster
+    volumes:
+      - ./frontend:/app/frontend
+    working_dir: /app/frontend
+    tty: true
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.0/28
