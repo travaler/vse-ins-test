@@ -1,7 +1,7 @@
 include .env
 export
 
-init: docker-up create-db composer-install migration npm-install frontend-build
+init: create-db composer-install migration npm-install frontend-build
 
 docker-up:
 	docker-compose up --build -d

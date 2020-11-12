@@ -1,1 +1,3 @@
-make init для запуска
+Для запуска:
+* make docker-up
+* make init
